@@ -1,0 +1,27 @@
+{
+  "name": "auto-trader",
+  "version": "0.1.0",
+  "description": "Automate your crypto trades",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jfelipesilva/auto-trader.git"
+  },
+  "author": "Joao Felipe",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jfelipesilva/auto-trader/issues"
+  },
+  "homepage": "https://github.com/jfelipesilva/auto-trader#readme",
+  "keywords": [
+    "trader",
+    "bot",
+    "crypto",
+    "trader",
+    "auto",
+    "trader"
+  ]
+}
