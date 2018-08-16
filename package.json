@@ -23,5 +23,8 @@
     "trader",
     "auto",
     "trader"
-  ]
+  ],
+  "dependencies": {
+    "dotenv": "^6.0.0"
+  }
 }
