@@ -125,7 +125,7 @@ setNewTrade = (user_id, strategy_id) => {
     for(let i=(users.length-1); i>=0; i--){
         if(users[i].id == user_id){
             users[i].strategyTrading = strategy_id;
-            mysql_conn = mysql.createConnection(mysql_conf);
+            let mysql_conn = mysql.createConnection(mysql_conf);
             mysql_conn.connect();
             mysql_conn.query("UPDATE user SET strategyTrading = "+strategy_id+" WHERE id = "+user_id , function (err, result) {
                 if (err) throw err;
@@ -139,7 +139,7 @@ clearActualTrade = (user_id) => {
     for(let i=(users.length-1); i>=0; i--){
         if(users[i].id == user_id){
             users[i].strategyTrading = 0;
-            mysql_conn = mysql.createConnection(mysql_conf);
+            let mysql_conn = mysql.createConnection(mysql_conf);
             mysql_conn.connect();
             mysql_conn.query("UPDATE user SET strategyTrading = 0 WHERE id = "+user_id , function (err, result) {
                 if (err) throw err;
