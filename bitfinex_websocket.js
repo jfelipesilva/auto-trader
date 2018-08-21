@@ -57,6 +57,7 @@ wss.onmessage = (msg) => {
         channels.push(messages);
         if(pairs.hasOwnProperty(messages.pair)){
             pairs[messages.pair].channel = messages.chanId;
+            console.log("subscribed "+messages.pair+" into channel #"+messages.chanId);
         }
     }
 
@@ -86,17 +87,14 @@ wss.onopen = () => {
         event: 'auth'
     };
 
-    wss.send(JSON.stringify({ 
-        event: 'subscribe', 
-        channel: 'trades', 
-        symbol: 'tIOTUSD' 
-    }));
-
-    wss.send(JSON.stringify({ 
-        event: 'subscribe', 
-        channel: 'trades', 
-        symbol: 'tBTCUSD' 
-    }));
+    for(var prop in pairs){
+        console.log("sending subscription request for "+prop);
+        wss.send(JSON.stringify({ 
+            event: 'subscribe', 
+            channel: 'trades', 
+            symbol: 't'+prop 
+        }));
+    }
 
 };
 
@@ -165,7 +163,7 @@ priceChanges = (channel, lastPrice) => {
             //console.log("Temp "+prop+":"+temp);
             temp = (temp*100)/pairs[prop].price;
             //console.log("Temp "+prop+":"+temp);
-            if(temp>0.2){
+            if(temp>0.5){
                 pairs[prop].priceMoves = lastPrice;
                 console.log(moment().format("YYYY-MM-DD H:mm:ss")+" "+prop+":"+pairs[prop].price);
             }
