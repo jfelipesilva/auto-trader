@@ -1,8 +1,8 @@
 const crypto = require('crypto-js');
 const WebSocket = require('ws');
 const moment = require('moment');
-const fs = require('fs');
-const env = JSON.parse(fs.readFileSync("env.json"));
+const environment = require(__dirname + '/environment');
+const env = envi.getVars();
 
 const mysql = require('mysql');
 const mysql_conf = {  
