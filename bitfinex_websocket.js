@@ -73,8 +73,8 @@ wss.onmessage = (msg) => {
 };
 wss.onopen = () => {
     // API keys setup here (See "Authenticated Channels")
-    const apiKey = process.env.BITFINEX_APIKEY;
-    const apiSecret = process.env.BITFINEX_APISECRET;
+    const apiKey = env.BITFINEX_APIKEY;
+    const apiSecret = env.BITFINEX_APISECRET;
 
     const authNonce = Date.now() * 1000;
     const authPayload = 'AUTH' + authNonce;
