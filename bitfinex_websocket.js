@@ -1,8 +1,8 @@
 const crypto = require('crypto-js');
 const WebSocket = require('ws');
 const moment = require('moment');
-const environment = require(__dirname + '/environment');
-const env = envi.getVars();
+const environment = require(__dirname + '/_environment');
+const env = environment.getVars();
 
 const mysql = require('mysql');
 const mysql_conf = {  
