@@ -1,5 +1,6 @@
+//copy this file to "_config.js" and configure it with your environment needs
 
-var environment = {
+var configs = {
     getVars : function(){
         return {
             "BITFINEX_APIKEY":"",
@@ -13,4 +14,5 @@ var environment = {
         };
     }
 }
-module.exports = environment;
+
+module.exports = configs;

@@ -1,9 +1,7 @@
 *.log
 
-.env
 sftp-config.json
-env.json
-_environment.js
+_configs.js
 
 node_modules
 vendor

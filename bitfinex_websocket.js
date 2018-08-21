@@ -1,15 +1,15 @@
 const crypto = require('crypto-js');
 const WebSocket = require('ws');
 const moment = require('moment');
-const environment = require(__dirname + '/_environment');
-const env = environment.getVars();
+const configs = require(__dirname + '/_configs');
+const vars = configs.getVars();
 
 const mysql = require('mysql');
 const mysql_conf = {  
-  host     : env.BD_HOST,
-  user     : env.BD_USER,
-  password : env.BD_PASSWORD,
-  database : env.BD_DATABASE
+  host     : vars.BD_HOST,
+  user     : vars.BD_USER,
+  password : vars.BD_PASSWORD,
+  database : vars.BD_DATABASE
 }
 var mysql_conn = "";
 
@@ -73,8 +73,8 @@ wss.onmessage = (msg) => {
 };
 wss.onopen = () => {
     // API keys setup here (See "Authenticated Channels")
-    const apiKey = env.BITFINEX_APIKEY;
-    const apiSecret = env.BITFINEX_APISECRET;
+    const apiKey = vars.BITFINEX_APIKEY;
+    const apiSecret = vars.BITFINEX_APISECRET;
 
     const authNonce = Date.now() * 1000;
     const authPayload = 'AUTH' + authNonce;
