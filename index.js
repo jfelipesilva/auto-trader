@@ -1,4 +1,6 @@
-require('dotenv').config();
+const fs = require('fs');
+const env = JSON.parse(fs.readFileSync("env.json"));
+
 var mysql = require('mysql');
 var mysql_conf = {  
   host     : process.env.BD_HOST,
@@ -6,6 +8,7 @@ var mysql_conf = {
   password : process.env.BD_PASSWORD,
   database : process.env.BD_DATABASE
 }
+
 var mysql_conn = "";
 mysql_conn = mysql.createConnection(mysql_conf);
 mysql_conn.connect();
