@@ -2,6 +2,7 @@
 
 .env
 sftp-config.json
+env.json
 
 node_modules
 vendor

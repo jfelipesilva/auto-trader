@@ -2,13 +2,15 @@ require('dotenv').config();
 const crypto = require('crypto-js');
 const WebSocket = require('ws');
 const moment = require('moment');
+const fs = require('fs');
+const env = JSON.parse(fs.readFileSync("env.json"));
 
 const mysql = require('mysql');
 const mysql_conf = {  
-  host     : process.env.BD_HOST,
-  user     : process.env.BD_USER,
-  password : process.env.BD_PASSWORD,
-  database : process.env.BD_DATABASE
+  host     : env.BD_HOST,
+  user     : env.BD_USER,
+  password : env.BD_PASSWORD,
+  database : env.BD_DATABASE
 }
 var mysql_conn = "";
 
