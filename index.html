@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>::: AUTO TRADER :::</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+    <div class="container-fluid">
+        <h1>Auto Trader</h1>
+        <p>This is some text.</p>
+    </div>
+    <hr>
+    <div class="addStrategy col-md-1">
+        <h2>Strategy</h2><br>
+        <form name="strategy">
+            <div class="form-group">
+                <label for="pair"> Pair:</label>
+                <select class="form-control" name="pair" id="input_pair">
+                    <option value="1">BTCUSD</option>
+                    <option value="2">ETHUSD</option>
+                    <option value="3">XRPUSD</option>
+                    <option value="4">BCHUSD</option>
+                    <option value="5">EOSUSD</option>
+                    <option value="6">LTCUSD</option>
+                    <option value="7">XRMUSD</option>
+                    <option value="8">ETCUSD</option>
+                    <option value="9">DSHUSD</option>
+                    <option value="10">TRXUSD</option>
+                    <option value="11">IOTUSD</option>
+                    <option value="12">NEOUSD</option>
+                    <option value="13">ETPUSD</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Buy: </label><br>
+                <input class="form-control mask-number" type="text" name="buy" id="input_buy" maxlength="12" required>
+            </div>
+            <div class="form-group">
+                <label>Target: </label><br>
+                <input class="form-control mask-number" type="text" name="target" id="input_target" maxlength="12" required>
+            </div>
+            <div class="form-group">
+                <label>Stop: </label><br>
+                <input class="form-control mask-number" type="text" name="stop" id="input_stop" maxlength="12" required>
+            </div>
+            <button type="submit">update</button>
+        </form>
+    </div>
+
+<script src="jquery.inputmask.bundle.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function(){
+        $("input.mask-number").inputmask({ alias: "decimal"});
+
+        var connected = false;
+        
+        setTimeout(function(){
+            if(!connected){
+                log('SERVIDOR OFFLINE');
+            }
+        },2000);
+
+        socket = new WebSocket("ws://127.0.0.1:8002/");
+        socket.onmessage = function (data) {
+            log('MENSAGEM DO SERVIDOR');
+        };
+        socket.onopen = function () {
+            connected = true;
+            socket.send(JSON.stringify({
+                clientName:"João",
+                clientKey:"dfalçkjdfklaçsdj fklasj df"
+            }));
+            log('CONECTADO COM SERVIDOR');
+        };
+        socket.onerror = function () {
+            log('ACONTECEU ALGUM ERRO INESPERADO');
+        };
+        socket.onclose = function(){
+            connected = false;
+            log('DESCONECTADO COM SERVIDOR');
+        }
+    });
+
+    function log(msg){
+        console.log(msg);
+    }
+
+</script>
+</body>
+</html> 
