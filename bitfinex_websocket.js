@@ -116,16 +116,16 @@ priceChanges = (channel, lastPrice) => {
         if(pairs[prop].priceMoves == 0){
             pairs[prop].priceMoves = lastPrice;
             utils.log(prop+":"+pairs[prop].price);
-        }/*else{
+        }else{
             temp = Math.abs(pairs[prop].priceMoves - pairs[prop].price);
             //utils.log("Temp "+prop+":"+temp);
             temp = (temp*100)/pairs[prop].price;
             //utils.log("Temp "+prop+":"+temp);
-            if(temp>0.5){
+            if(temp>utils.priceVariance){
                 pairs[prop].priceMoves = lastPrice;
                 utils.log(prop+":"+pairs[prop].price);
             }
-        }*/
+        }
         //utils.log(prop+":"+pairs[prop].price);
     }
 

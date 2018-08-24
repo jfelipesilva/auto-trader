@@ -1,7 +1,7 @@
 //copy this file to "_config.js" and configure it with your environment needs
 
 var configs = {
-    getVars : function(){
+    getENV : function(){
         return {
             "BITFINEX_APIKEY":"",
             "BITFINEX_APISECRET":"",

@@ -1,6 +1,9 @@
 const moment = require('moment');
 
 var utils = {
+    
+    priceVariance: 1, //percent of price variance to print a log (if an asset fluctuate 1% print a log)
+    
     isFunction: (functionToCheck) => {
         return functionToCheck && {}.toString.call(functionToCheck) === '[object Function]';
     },
