@@ -30,5 +30,3 @@ mysql_conn.query('SELECT *, CONCAT(c.slug,b.slug) pair FROM strategy a INNER JOI
     }
     mysql_conn.end();
 });
-
-//teste git
