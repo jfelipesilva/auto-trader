@@ -7,6 +7,11 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <style type="text/css">
+        table td {
+            text-align: right;
+        }
+    </style>
 </head>
 <body>
 
@@ -15,41 +20,76 @@
         <p>This is some text.</p>
     </div>
     <hr>
-    <div class="addStrategy col-md-1">
-        <h2>Strategy</h2><br>
-        <form name="strategy">
+    <div class="auth col-md-2">
+        <h2>Authentication</h2><br>
+        <form name="auth">
+            <input type="hidden" name="hskey">
             <div class="form-group">
-                <label for="pair"> Pair:</label>
-                <select class="form-control" name="pair" id="input_pair">
-                    <option value="1">BTCUSD</option>
-                    <option value="2">ETHUSD</option>
-                    <option value="3">XRPUSD</option>
-                    <option value="4">BCHUSD</option>
-                    <option value="5">EOSUSD</option>
-                    <option value="6">LTCUSD</option>
-                    <option value="7">XRMUSD</option>
-                    <option value="8">ETCUSD</option>
-                    <option value="9">DSHUSD</option>
-                    <option value="10">TRXUSD</option>
-                    <option value="11">IOTUSD</option>
-                    <option value="12">NEOUSD</option>
-                    <option value="13">ETPUSD</option>
-                </select>
+                <label>E-mail: </label><br>
+                <input class="form-control" type="text" name="email" id="input_email" maxlength="100" required>
             </div>
             <div class="form-group">
-                <label>Buy: </label><br>
-                <input class="form-control mask-number" type="text" name="buy" id="input_buy" maxlength="12" required>
+                <label>Key: </label><br>
+                <input class="form-control" type="text" name="key" id="input_key" maxlength="100" required>
             </div>
-            <div class="form-group">
-                <label>Target: </label><br>
-                <input class="form-control mask-number" type="text" name="target" id="input_target" maxlength="12" required>
-            </div>
-            <div class="form-group">
-                <label>Stop: </label><br>
-                <input class="form-control mask-number" type="text" name="stop" id="input_stop" maxlength="12" required>
-            </div>
-            <button type="submit">update</button>
+            <button type="submit">login</button>
         </form>
+    </div>
+    <div class="col-md-10 logged" style="display: none;">
+        <div class="col-md-1"></div>
+        <div class="addStrategy col-md-1">
+            <h2>Strategy</h2><br>
+            <form name="strategy">
+                <input type="hidden" name="auth_key">
+                <div class="form-group">
+                    <label for="pair"> Pair:</label>
+                    <select class="form-control" name="pair" id="input_pair">
+                        <option value="1">BTCUSD</option>
+                        <option value="2">ETHUSD</option>
+                        <option value="3">XRPUSD</option>
+                        <option value="4">BCHUSD</option>
+                        <option value="5">EOSUSD</option>
+                        <option value="6">LTCUSD</option>
+                        <option value="7">XRMUSD</option>
+                        <option value="8">ETCUSD</option>
+                        <option value="9">DSHUSD</option>
+                        <option value="10">TRXUSD</option>
+                        <option value="11">IOTUSD</option>
+                        <option value="12">NEOUSD</option>
+                        <option value="13">ETPUSD</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Buy: </label><br>
+                    <input class="form-control mask-number" type="text" name="buy" id="input_buy" maxlength="12" required>
+                </div>
+                <div class="form-group">
+                    <label>Target: </label><br>
+                    <input class="form-control mask-number" type="text" name="target" id="input_target" maxlength="12" required>
+                </div>
+                <div class="form-group">
+                    <label>Stop: </label><br>
+                    <input class="form-control mask-number" type="text" name="stop" id="input_stop" maxlength="12" required>
+                </div>
+                <button type="submit">update</button>
+            </form>
+        </div>
+        <div class="col-md-6">
+            <h2>Running Strategies</h2><br>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <td width="15%">Pair</td>
+                        <td width="15%">Actual Price</td>
+                        <td width="30%">Strategy (buy/stop/target)</td>
+                        <td width="30%">loss / gain (%)</td>
+                        <td width="10%">Delete</td>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
     </div>
 
 <script src="jquery.inputmask.bundle.min.js"></script>
@@ -58,6 +98,7 @@
         $("input.mask-number").inputmask({ alias: "decimal"});
 
         var connected = false;
+        var strategies = {};
         
         setTimeout(function(){
             if(!connected){
@@ -66,14 +107,29 @@
         },2000);
 
         socket = new WebSocket("ws://127.0.0.1:8002/");
-        socket.onmessage = function (data) {
+        socket.onmessage = function (msg) {
             log('MENSAGEM DO SERVIDOR');
+            data = JSON.parse(msg.data);
+            if(data.handshake == 1){
+                $("input[name=hskey]").val(data.hskey);
+            }else if(data.auth == 1){
+                $("input[name=auth_key]").val(data.auth_key);
+                $(".auth").hide();
+                $(".logged").show();
+                $("table tbody").empty();
+                data.strategies.forEach(function(strat, i){
+                    $("<tr><td>"+strat.pair+"</td><td class="+strat.pair+">"+strat.price.toLocaleString('pt-BR')+"</td><td>"+strat.buy.toLocaleString('pt-BR')+" / <span style='color:red;'>"+strat.stop.toLocaleString('pt-BR')+"</span> / <span style='color:green;'>"+strat.target.toLocaleString('pt-BR')+"</span></td><td><span style='color:red;'>"+calcPercentage(strat.stop,strat.buy).toFixed(2)+"%</span> / <span style='color:green;'>"+calcPercentage(strat.target,strat.buy).toFixed(2)+"%</span></td><td><button>del</button></td></tr>").appendTo("table tbody");
+                });
+            }else if(data.update == 1){
+                log(data.pair+":"+data.price);
+                $("."+data.pair).html(data.price.toLocaleString('pt-BR'));
+            }
         };
         socket.onopen = function () {
             connected = true;
             socket.send(JSON.stringify({
-                clientName:"João",
-                clientKey:"dfalçkjdfklaçsdj fklasj df"
+                request: "browser",
+                handshake: 1
             }));
             log('CONECTADO COM SERVIDOR');
         };
@@ -84,11 +140,41 @@
             connected = false;
             log('DESCONECTADO COM SERVIDOR');
         }
+
+        $("form[name=strategy]").submit(function(e){
+            e.preventDefault();
+
+            let res = {request:"browser"};
+            $(":input").each(function(i,obj){
+                res[obj.name] = obj.value;
+            });
+            socket.send(res);
+        });
+
+        $("form[name=auth]").submit(function(e){
+            e.preventDefault();
+
+            let res = {request:"browser", auth: 1};
+            $(":input").each(function(i,obj){
+                res[obj.name] = obj.value;
+            });
+            socket.send(JSON.stringify(res));
+        });
     });
 
     function log(msg){
         console.log(msg);
     }
+
+    function calcPercentage(val1, val2){
+        if(val1<val2){
+            return (((val2/val1)*100)-100)*(-1)
+        }else{
+            return ((val1/val2)*100)-100;
+        }
+        
+    }
+
 
 </script>
 </body>

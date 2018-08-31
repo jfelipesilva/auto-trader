@@ -1,7 +1,7 @@
 const crypto = require('crypto-js');
-const WebSocket = require('ws');
-const configs = require(__dirname + '/_configs');
-const env = configs.getENV();
+const bf_ws = require('ws'); //bifinex websocket
+const lh_ws = require('ws'); //localhost websocket
+const env = require(__dirname + '/_configs');
 
 const mysql = require('mysql');
 const mysql_conf = {  
@@ -15,8 +15,8 @@ var mysql_conn = "";
 const utils = require(__dirname + '/utils');
 const database = require(__dirname + '/mods/database');
 const users = require(__dirname + '/mods/users');
+const strategies = require(__dirname + '/mods/strategies');
 
-var messages = {};
 var pairs = {};
 var channels = [];
 
@@ -49,11 +49,23 @@ database.query('SELECT CONCAT(c.slug,b.slug) pair, a.id, a.user_id, d.strategyTr
 });
 
 
-const wss = new WebSocket('wss://api.bitfinex.com/ws/2');
+const wss = new bf_ws('wss://api.bitfinex.com/ws/2');
+const lhs = new lh_ws('ws://127.0.0.1:'+env.WSS_PORT);
+
+lhs.onmessage = (msg) => {
+    let messages = JSON.parse(msg.data);
+    if(messages.action == "submit"){
+
+    }
+};
+
+lhs.onopen = () => {
+    
+};
 
 wss.onmessage = (msg) => {
     //utils.log(msg.data);
-    messages = JSON.parse(msg.data);
+    let messages = JSON.parse(msg.data);
 
     //SUBSCRIPTIONS
     if(messages.event == "subscribed"){
@@ -111,6 +123,7 @@ priceChanges = (channel, lastPrice) => {
         if(pairs[prop].channel == channel){
             pairs[prop].price = lastPrice;
             verifyStrategiesByPrice(prop);
+            lhs.send('{"request":"bitfinex_ws", "pair":"'+prop+'", "pairs":'+JSON.stringify(pairs[prop])+'}');
         }
 
         if(pairs[prop].priceMoves == 0){
@@ -148,7 +161,7 @@ verifyStrategiesByPrice = (pair) => {
                 utils.log("Usuário #"+strat.user_id+" foi stopado "+pair+" por "+obj.price, "danger");
                 strat.buyFlag = 0;
                 users.setCloseTrade(strat.user_id);
-                buyFlagControl(0, strat.id);
+                strategies.buyFlagControl(0, strat.id);
             }else if(obj.price > strat.target){
                 utils.log("Usuário #"+strat.user_id+" atingiu seu target "+pair+" por "+obj.price, "success");
                 users.setCloseTrade(strat.user_id);
@@ -157,23 +170,14 @@ verifyStrategiesByPrice = (pair) => {
             if(strat.buyFlag && obj.price <= strat.stop){
                 utils.log("Estratégia #"+strat.id+" foi stopada "+pair+" por "+obj.price, "danger");
                 strat.buyFlag = 0;
-                buyFlagControl(0, strat.id);
+                strategies.buyFlagControl(0, strat.id);
             }else if(!strat.buyFlag && obj.price >= strat.target){
                 utils.log("Estratégia #"+strat.id+" atingiu seu target "+pair+" por "+obj.price, "success");
                 strat.buyFlag = 1;
-                buyFlagControl(1, strat.id);
+                strategies.buyFlagControl(1, strat.id);
             }
         }
 
     });
 
-};
-
-buyFlagControl = (flag, strat_id) => {
-    mysql_conn = mysql.createConnection(mysql_conf);
-    mysql_conn.connect();
-    mysql_conn.query("UPDATE strategy SET buyFlag = "+flag+" WHERE id = "+strat_id , function (err, result) {
-        if (err) throw err;
-        mysql_conn.end();
-    });
 };

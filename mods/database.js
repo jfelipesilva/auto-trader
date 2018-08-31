@@ -1,5 +1,4 @@
-const configs = require(__dirname + '/../_configs');
-const env = configs.getENV();
+const env = require(__dirname + '/../_configs');
 const mysql = require('mysql');
 const mysql_conf = {  
   host     : env.BD_HOST,
