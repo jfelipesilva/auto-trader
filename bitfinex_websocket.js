@@ -152,18 +152,18 @@ verifyStrategiesByPrice = (pair) => {
             //utils.log("Actual price:"+obj.price+"".padEnd(20)+"Buy price:"+strat.buy+"".padEnd(20)+"Stop price:"+strat.stop+"".padEnd(20));
             if(obj.price <= strat.buy && obj.price >= strat.stop){
                 //https://gist.github.com/joshuarossi/456a16bd17577a9e7681b6d43880b920
-                users.setOpenTrade(strat.user_id,strat.id);
+                users.setOpenTrade(strat.user_id,strat.id,obj.price);
                 utils.log("Usuário #"+strat.user_id+" Comprou "+pair+" por "+obj.price, "info");
             }
         }else if(userTradingStrategy == strat.id){
             if(obj.price < strat.stop){
                 utils.log("Usuário #"+strat.user_id+" foi stopado "+pair+" por "+obj.price, "danger");
                 strat.buyFlag = 0;
-                users.setCloseTrade(strat.user_id);
+                users.setCloseTrade(strat.user_id, strat.id, price, 'stop');
                 strategies.buyFlagControl(0, strat.id);
             }else if(obj.price > strat.target){
                 utils.log("Usuário #"+strat.user_id+" atingiu seu target "+pair+" por "+obj.price, "success");
-                users.setCloseTrade(strat.user_id);
+                users.setCloseTrade(strat.user_id, strat.id, price, 'target');
             }
         }else{
             if(strat.buyFlag && obj.price <= strat.stop){

@@ -1,6 +1,8 @@
 //copy this file to "_config.js" and configure it with your environment needs
 
 var configs = {
+	"APP_DIR": "/home/ubuntu/trader/",
+
     "BITFINEX_APIKEY":"",
     "BITFINEX_APISECRET":"",
     "BITFINEX_BASEURL":"https://api.bitfinex.com",

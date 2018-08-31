@@ -88,7 +88,7 @@ const wss = new ws_server({clientTracking: true, port: env.WSS_PORT});
     bfx = () => {
 
         const exec = require('child_process').exec;
-        const bitfinex_ws = exec('node ./bitfinex_websocket.js');
+        const bitfinex_ws = exec('node '+env.APP_DIR+'bitfinex_websocket.js');
         bitfinex_ws.stdout.on('data', function(data) {
             console.log(data);
         });

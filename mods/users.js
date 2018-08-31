@@ -32,20 +32,22 @@ var users = {
         }
     },
 
-    setOpenTrade: (user_id, strategy_id) => {
+    setOpenTrade: (user_id, strategy_id, price) => {
         for(let i=(conf.users.length-1); i>=0; i--){
             if(conf.users[i].id == user_id){
                 conf.users[i].strategyTrading = strategy_id;
                 database.query("UPDATE user SET strategyTrading = "+strategy_id+" WHERE id = "+user_id);
+                database.query("INSERT INTO orders (strategy_id, user_id, priceFilled, type) VALUES ("+strategy_id+", "+user_id+", "+price+", 'buy')");
             }
         }
     },
 
-    setCloseTrade: (user_id) => {
+    setCloseTrade: (user_id, strategy_id, price, type) => {
         for(let i=(conf.users.length-1); i>=0; i--){
             if(conf.users[i].id == user_id){
                 conf.users[i].strategyTrading = 0;
                 database.query("UPDATE user SET strategyTrading = 0 WHERE id = "+user_id);
+                database.query("INSERT INTO orders (strategy_id, user_id, priceFilled, type) VALUES ("+strategy_id+", "+user_id+", "+price+", '"+type+"')");
             }
         }
     }
