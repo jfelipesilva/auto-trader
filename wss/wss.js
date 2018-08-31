@@ -9,6 +9,8 @@ const wss = new ws_server({clientTracking: true, port: env.WSS_PORT});
 
 //INIT --------------------------------
 
+    log("WSS STARTED");
+
     var srvr = {
         id:0,
         clients: [],
@@ -33,8 +35,8 @@ const wss = new ws_server({clientTracking: true, port: env.WSS_PORT});
         ws.id = srvr.id++;
         ws.hskey = makeid();
         srvr.clients.push(ws);
-        log('entrou: '+ws.id);
-        log('total clientes:'+srvr.clients.length);
+        log('new client: '+ws.id);
+        //log('total clients:'+srvr.clients.length);
 
         ws.on('message', function (msg) {
             let obj = JSON.parse(msg);
@@ -78,6 +80,7 @@ const wss = new ws_server({clientTracking: true, port: env.WSS_PORT});
         });
 
         ws.on('error',function(){
+            log("WSS ERROS");
         });
 
     });
