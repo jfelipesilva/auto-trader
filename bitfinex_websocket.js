@@ -19,6 +19,7 @@ const strategies = require(__dirname + '/mods/strategies');
 
 var pairs = {};
 var channels = [];
+var wss_connected = false;
 
 utils.log(":::: :::: :::: :::: :::");
 utils.log(":::: START  LISTEN ::::");
@@ -50,18 +51,10 @@ database.query('SELECT CONCAT(c.slug,b.slug) pair, a.id, a.user_id, d.strategyTr
 
 
 const wss = new bf_ws('wss://api.bitfinex.com/ws/2');
-const lhs = new lh_ws('ws://127.0.0.1:'+env.WSS_PORT);
-
-lhs.onmessage = (msg) => {
-    let messages = JSON.parse(msg.data);
-    if(messages.action == "submit"){
-
-    }
-};
-
-lhs.onopen = () => {
-    
-};
+let lhwss;
+setTimeout(function(){
+    lhwss = connectToWss();
+},5000);
 
 wss.onmessage = (msg) => {
     //utils.log(msg.data);
@@ -123,7 +116,7 @@ priceChanges = (channel, lastPrice) => {
         if(pairs[prop].channel == channel){
             pairs[prop].price = lastPrice;
             verifyStrategiesByPrice(prop);
-            lhs.send('{"request":"bitfinex_ws", "pair":"'+prop+'", "pairs":'+JSON.stringify(pairs[prop])+'}');
+            if(wss_connected) lhwss.send('{"request":"bitfinex_ws", "pair":"'+prop+'", "pairs":'+JSON.stringify(pairs[prop])+'}');
         }
 
         if(pairs[prop].priceMoves == 0){
@@ -181,3 +174,27 @@ verifyStrategiesByPrice = (pair) => {
     });
 
 };
+
+function connectToWss(){
+
+    const lhs = new lh_ws('ws://127.0.0.1:'+env.WSS_PORT);
+
+    lhs.onmessage = (msg) => {
+        let messages = JSON.parse(msg.data);
+        if(messages.action == "submit"){
+
+        }
+    };
+
+    lhs.onopen = () => {
+        wssConnedted();
+    };
+
+    return lhs;
+
+}
+
+function wssConnedted(){
+    wss_connected = true;
+    utils.log("CONNECTED!");
+}
