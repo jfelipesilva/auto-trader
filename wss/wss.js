@@ -9,7 +9,7 @@ const wss = new ws_server({clientTracking: true, port: env.WSS_PORT});
 
 //INIT --------------------------------
 
-    log("WSS STARTED");
+    ut.log("WSS STARTED");
 
     var srvr = {
         id:0,
@@ -35,8 +35,8 @@ const wss = new ws_server({clientTracking: true, port: env.WSS_PORT});
         ws.id = srvr.id++;
         ws.hskey = makeid();
         srvr.clients.push(ws);
-        log('new client: '+ws.id);
-        //log('total clients:'+srvr.clients.length);
+        ut.log('new client: '+ws.id);
+        //ut.log('total clients:'+srvr.clients.length);
 
         ws.on('message', function (msg) {
             let obj = JSON.parse(msg);
@@ -65,33 +65,46 @@ const wss = new ws_server({clientTracking: true, port: env.WSS_PORT});
             flag = false;
             for(i in srvr.clients){
                 if(srvr.clients[i].id == ws.id){
-                    log('client logged out: '+srvr.clients[i].id);
+                    ut.log('client logged out: '+srvr.clients[i].id);
                     srvr.clients.splice(i,1);
-                    log('total clients conneced:'+srvr.clients.length);
+                    ut.log('total clients conneced:'+srvr.clients.length);
                 }
             }
             for(i in srvr.users){
                 if(srvr.users[i].id == ws.id){
-                    log('user logged out: '+srvr.users[i].id);
+                    ut.log('user logged out: '+srvr.users[i].id);
                     srvr.users.splice(i,1);
-                    log('total users connected:'+srvr.users.length);
+                    ut.log('total users connected:'+srvr.users.length);
                 }
             }
         });
 
         ws.on('error',function(){
-            log("WSS ERROS");
+            ut.log("WSS ERROS");
         });
 
     });
 
+    bfx = () => {
+
+        const exec = require('child_process').exec;
+        const bitfinex_ws = exec('node ./bitfinex_websocket.js');
+        bitfinex_ws.stdout.on('data', function(data) {
+            console.log(data);
+        });
+        bitfinex_ws.stderr.on('data', function(data) {
+            console.log(data);
+        });
+        bitfinex_ws.on('close', function(code) {
+            console.log(code);
+        });
+
+    }
+
+    bfx();
+
 
 // UTILS ------------------------------
-
-    log = (msg) => {
-        console.log(msg);
-    };
-
 
     makeid = () => {
       var text = "";
@@ -144,7 +157,7 @@ const wss = new ws_server({clientTracking: true, port: env.WSS_PORT});
             dif = moment().unix() - srvr.users[i].moment;
             if(srvr.users[i].auth == 0 && dif > 20){
                 srvr.users.splice(i,1);
-                log("dumpin user "+srvr.users[i].id);
+                ut.log("dumpin user "+srvr.users[i].id);
             }
         }
     }
@@ -163,7 +176,7 @@ const wss = new ws_server({clientTracking: true, port: env.WSS_PORT});
         for(let exchange in srvr.exchanges){
             for(let pair in srvr.exchanges[exchange]){
                 for(let strat in srvr.exchanges[exchange][pair].strategies){
-                    log(exchange+"."+pair+".strategies["+strat+"]:"+srvr.exchanges[exchange][pair].strategies[strat]);
+                    ut.log(exchange+"."+pair+".strategies["+strat+"]:"+srvr.exchanges[exchange][pair].strategies[strat]);
                     if(srvr.exchanges[exchange][pair].strategies[strat].user_id == user_id){
                         srvr.exchanges[exchange][pair].strategies[strat].price = srvr.exchanges[exchange][pair].price;
                         user_strategies.push(srvr.exchanges[exchange][pair].strategies[strat]);
