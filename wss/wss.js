@@ -176,7 +176,7 @@ const wss = new ws_server({clientTracking: true, port: env.WSS_PORT});
         for(let exchange in srvr.exchanges){
             for(let pair in srvr.exchanges[exchange]){
                 for(let strat in srvr.exchanges[exchange][pair].strategies){
-                    ut.log(exchange+"."+pair+".strategies["+strat+"]:"+srvr.exchanges[exchange][pair].strategies[strat]);
+                    //ut.log(exchange+"."+pair+".strategies["+strat+"]:"+srvr.exchanges[exchange][pair].strategies[strat]);
                     if(srvr.exchanges[exchange][pair].strategies[strat].user_id == user_id){
                         srvr.exchanges[exchange][pair].strategies[strat].price = srvr.exchanges[exchange][pair].price;
                         user_strategies.push(srvr.exchanges[exchange][pair].strategies[strat]);

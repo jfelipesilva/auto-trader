@@ -167,7 +167,7 @@ verifyStrategiesByPrice = (pair) => {
             }else if(obj.price > strat.target){
                 utils.log("Usuário #"+strat.user_id+" atingiu seu target "+pair+" por "+obj.price, "success");
                 users.setCloseTrade(strat.user_id, strat.id, obj.price, 'target');
-                strat.status = "enabled";
+                strat.status = "obsolete";
                 strategies.buyFlagControl(1, strat.id, strat.status);
             }
         }else{
@@ -176,10 +176,10 @@ verifyStrategiesByPrice = (pair) => {
                 strat.buyFlag = 0;
                 strat.status = "disabled";
                 strategies.buyFlagControl(0, strat.id, strat.status);
-            }else if(!strat.buyFlag && obj.price >= strat.target){
+            }else if(!strat.buyFlag && obj.price > strat.target){
                 utils.log("Estratégia #"+strat.id+" atingiu seu target "+pair+" por "+obj.price, "success");
                 strat.buyFlag = 1;
-                strat.status = "enabled";
+                strat.status = "obsolete";
                 strategies.buyFlagControl(1, strat.id, strat.status);
             }else if(userTradingStrategy!=0 && strat.status == "enabled" && strat.buyFlag && obj.price <= strat.buy && obj.price > strat.stop){
                 utils.log("Estratégia #"+strat.id+" está em zona de compra "+pair+" por "+obj.price, "info");
@@ -188,7 +188,13 @@ verifyStrategiesByPrice = (pair) => {
             }else if(strat.status == "in buy zone" && obj.price > strat.buy){
                 strat.status = "enabled";
                 strategies.buyFlagControl(1, strat.id, strat.status);
-            } 
+            }else if(strat.status == "obsolete" && obj.price < strat.target){
+                strat.status = "enabled";
+                strategies.buyFlagControl(1, strat.id, strat.status);                
+            }else if(strat.status == "enabled" && obj.price > strat.target){
+                strat.status = "obsolete";
+                strategies.buyFlagControl(1, strat.id, strat.status);                
+            }
         }
 
     });
