@@ -51,7 +51,7 @@ const wss = new ws_server({clientTracking: true, port: env.WSS_PORT});
                         obj.pairs.strategies.forEach(function(strat, i){
                             srvr.users.forEach(function(user, j){
                                 if(srvr.users[j].user_id == strat.user_id){
-                                    srvr.users[j].send('{"update":1,"price":'+obj.pairs.price+',"pair":"'+obj.pair+'"}');
+                                    srvr.users[j].send('{"update":1,"price":'+obj.pairs.price+',"pair":"'+obj.pair+'", "status":"'+strat.status+'"}');
                                 }
                             });
                         });
@@ -157,7 +157,7 @@ const wss = new ws_server({clientTracking: true, port: env.WSS_PORT});
             dif = moment().unix() - srvr.users[i].moment;
             if(srvr.users[i].auth == 0 && dif > 20){
                 srvr.users.splice(i,1);
-                ut.log("dumpin user "+srvr.users[i].id);
+                ut.log("dumpin user "+srvr.users[i].user_id);
             }
         }
     }

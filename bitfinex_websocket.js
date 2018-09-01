@@ -25,7 +25,7 @@ utils.log(":::: START  LISTEN ::::");
 utils.log(":::: :::: :::: :::: :::");
 //assinatura: http://www.kammerl.de/ascii/AsciiSignature.php
 
-database.query('SELECT CONCAT(c.slug,b.slug) pair, a.id, a.user_id, d.strategyTrading, a.buy, a.stop, a.target, a.buyFlag FROM strategy a INNER JOIN currency b ON a.currency_id = b.id INNER JOIN asset c ON a.asset_id = c.id INNER JOIN user d ON a.user_id = d.id WHERE b.exchanges_id = 1 ORDER BY a.created_at', function(rows) {
+database.query('SELECT CONCAT(c.slug,b.slug) pair, a.id, a.user_id, d.strategyTrading, a.buy, a.stop, a.target, a.buyFlag, a.status FROM strategy a INNER JOIN currency b ON a.currency_id = b.id INNER JOIN asset c ON a.asset_id = c.id INNER JOIN user d ON a.user_id = d.id WHERE b.exchanges_id = 1 ORDER BY a.created_at', function(rows) {
     if(rows.length > 0){
         rows.forEach(function(res, i){
 
@@ -123,19 +123,19 @@ priceChanges = (channel, lastPrice) => {
             pairs[prop].price = lastPrice;
             verifyStrategiesByPrice(prop);
             lhs.send('{"request":"bitfinex_ws", "pair":"'+prop+'", "pairs":'+JSON.stringify(pairs[prop])+'}');
-        }
 
-        if(pairs[prop].priceMoves == 0){
-            pairs[prop].priceMoves = lastPrice;
-            utils.log(prop+":"+pairs[prop].price);
-        }else{
-            temp = Math.abs(pairs[prop].priceMoves - pairs[prop].price);
-            //utils.log("Temp "+prop+":"+temp);
-            temp = (temp*100)/pairs[prop].price;
-            //utils.log("Temp "+prop+":"+temp);
-            if(temp>utils.priceVariance){
+            if(pairs[prop].priceMoves == 0){
                 pairs[prop].priceMoves = lastPrice;
                 utils.log(prop+":"+pairs[prop].price);
+            }else{
+                temp = Math.abs(pairs[prop].priceMoves - pairs[prop].price);
+                //utils.log("Temp "+prop+":"+temp);
+                temp = (temp*100)/pairs[prop].price;
+                //utils.log("Temp "+prop+":"+temp);
+                if(temp>utils.priceVariance){
+                    pairs[prop].priceMoves = lastPrice;
+                    utils.log(prop+":"+pairs[prop].price);
+                }
             }
         }
         //utils.log(prop+":"+pairs[prop].price);
@@ -152,29 +152,43 @@ verifyStrategiesByPrice = (pair) => {
             //utils.log("Actual price:"+obj.price+"".padEnd(20)+"Buy price:"+strat.buy+"".padEnd(20)+"Stop price:"+strat.stop+"".padEnd(20));
             if(obj.price <= strat.buy && obj.price >= strat.stop){
                 //https://gist.github.com/joshuarossi/456a16bd17577a9e7681b6d43880b920
+                strat.status = "open";
+                strategies.setStatus(strat.id, strat.status);
                 users.setOpenTrade(strat.user_id,strat.id,obj.price);
                 utils.log("Usuário #"+strat.user_id+" Comprou "+pair+" por "+obj.price, "info");
             }
         }else if(userTradingStrategy == strat.id){
             if(obj.price < strat.stop){
                 utils.log("Usuário #"+strat.user_id+" foi stopado "+pair+" por "+obj.price, "danger");
+                users.setCloseTrade(strat.user_id, strat.id, obj.price, 'stop');
+                strat.status = "stoped";
+                strategies.buyFlagControl(0, strat.id, strat.status);
                 strat.buyFlag = 0;
-                users.setCloseTrade(strat.user_id, strat.id, price, 'stop');
-                strategies.buyFlagControl(0, strat.id);
             }else if(obj.price > strat.target){
                 utils.log("Usuário #"+strat.user_id+" atingiu seu target "+pair+" por "+obj.price, "success");
-                users.setCloseTrade(strat.user_id, strat.id, price, 'target');
+                users.setCloseTrade(strat.user_id, strat.id, obj.price, 'target');
+                strat.status = "enabled";
+                strategies.buyFlagControl(1, strat.id, strat.status);
             }
         }else{
             if(strat.buyFlag && obj.price <= strat.stop){
                 utils.log("Estratégia #"+strat.id+" foi stopada "+pair+" por "+obj.price, "danger");
                 strat.buyFlag = 0;
-                strategies.buyFlagControl(0, strat.id);
+                strat.status = "disabled";
+                strategies.buyFlagControl(0, strat.id, strat.status);
             }else if(!strat.buyFlag && obj.price >= strat.target){
                 utils.log("Estratégia #"+strat.id+" atingiu seu target "+pair+" por "+obj.price, "success");
                 strat.buyFlag = 1;
-                strategies.buyFlagControl(1, strat.id);
-            }
+                strat.status = "enabled";
+                strategies.buyFlagControl(1, strat.id, strat.status);
+            }else if(userTradingStrategy!=0 && strat.status == "enabled" && strat.buyFlag && obj.price <= strat.buy && obj.price > strat.stop){
+                utils.log("Estratégia #"+strat.id+" está em zona de compra "+pair+" por "+obj.price, "info");
+                strat.status = "in buy zone";
+                strategies.setStatus(strat.id, strat.status);
+            }else if(strat.status == "in buy zone" && obj.price > strat.buy){
+                strat.status = "enabled";
+                strategies.buyFlagControl(1, strat.id, strat.status);
+            } 
         }
 
     });

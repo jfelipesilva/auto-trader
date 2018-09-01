@@ -36,10 +36,23 @@ var users = {
         for(let i=(conf.users.length-1); i>=0; i--){
             if(conf.users[i].id == user_id){
                 conf.users[i].strategyTrading = strategy_id;
+                //UPDATE USER; UPDATE STRATEGY; INSERT ORDER;
                 database.query("UPDATE user SET strategyTrading = "+strategy_id+" WHERE id = "+user_id);
                 database.query("INSERT INTO orders (strategy_id, user_id, priceFilled, type) VALUES ("+strategy_id+", "+user_id+", "+price+", 'buy')");
             }
         }
+    },
+
+    updateUserStrategiesStatus: (user_id) => {
+        database.query("SELECT * FROM strategies WHERE user_id = "+user_id, function(rows){
+            if(rows.length > 0){
+                rows.forEach(function(res, i){
+                    if(res.status == 'enabled'){
+
+                    }
+                });
+            }
+        });
     },
 
     setCloseTrade: (user_id, strategy_id, price, type) => {
