@@ -206,12 +206,12 @@ var bitfinex_timeout;
             }
             db.query("SELECT B.email, A.user_id, A.priceFilled, A.type, A.created_at FROM orders A INNER JOIN user B ON A.user_id = B.id WHERE A.user_id ="+where+" ORDER BY A.user_id", function(rows){
                 if(rows.length > 0){
-                    let u = 0;
+                    let u = -1;
                     let user_id = 0;
                     let orders = [];
                     rows.forEach(function(res, i){
                         if(user_id != res.user_id){
-                            if(u!=0){
+                            if(u!=-1){
                                 srvr.users[u].send('{"update":2, "trades":'+JSON.stringify(orders)+'}');
                             }
                             u = getUserByEmail(res.email);
