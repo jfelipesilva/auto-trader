@@ -106,8 +106,8 @@
             }
         },2000);
 
-        //socket = new WebSocket("ws://127.0.0.1:8002/");
-        socket = new WebSocket("ws://18.216.87.39:8002/");
+        socket = new WebSocket("ws://127.0.0.1:8002/");
+        //socket = new WebSocket("ws://18.216.87.39:8002/");
         socket.onmessage = function (msg) {
             log('MENSAGEM DO SERVIDOR');
             data = JSON.parse(msg.data);
@@ -126,6 +126,11 @@
                 log(data.pair+":"+data.price);
                 $("."+data.pair+" .price").html(data.price.toLocaleString('pt-BR'));
                 $("."+data.pair+" .status").html(statusColors(data.status));
+            }else if(data.update == 2){
+                log("trades");
+                for(i in data.trades){
+                    log(data.trades[i].created_at+" - type:"+data.trades[i].type+" at price: "+data.trades[i].priceFilled);
+                }
             }
         };
         socket.onopen = function () {

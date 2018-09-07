@@ -192,6 +192,41 @@ var bitfinex_timeout;
         return user_strategies;
     }
 
+    getUsersResults = () => {
+        if(srvr.users.length > 0){
+            let ids = [];
+            let where = "";
+            if(srvr.users.length>1){
+                for(i in srvr.users){
+                    ids.push(srvr.users[i].user_id);
+                }
+                where = srvr.users.join(" OR user_id =");
+            }else{
+                where = srvr.users[0].user_id;
+            }
+            db.query("SELECT B.email, A.user_id, A.priceFilled, A.type, A.created_at FROM orders A INNER JOIN user B ON A.user_id = B.id WHERE A.user_id ="+where+" ORDER BY A.user_id", function(rows){
+                if(rows.length > 0){
+                    let u = 0;
+                    let user_id = 0;
+                    let orders = [];
+                    rows.forEach(function(res, i){
+                        if(user_id != res.user_id){
+                            if(u!=0){
+                                srvr.users[u].send('{"update":2, "trades":'+JSON.stringify(orders)+'}');
+                            }
+                            u = getUserByEmail(res.email);
+                            orders = [];
+                            user_id = res.user_id;
+                        }
+                        orders.push(res);
+                    });
+                    srvr.users[u].send('{"update":2, "trades":'+JSON.stringify(orders)+'}');
+                }
+            });
+        }
+    }
+    setInterval(getUsersResults, 60000);
+
 
 // CLIENTS ----------------------------
 
