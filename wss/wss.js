@@ -7,6 +7,8 @@ const moment = require("moment");
 const ws_server = require('ws').Server;
 const wss = new ws_server({clientTracking: true, port: env.WSS_PORT});
 
+var bitfinex_timeout;
+
 //INIT --------------------------------
 
     ut.log("WSS STARTED");
@@ -45,6 +47,8 @@ const wss = new ws_server({clientTracking: true, port: env.WSS_PORT});
             }else if(obj.request=="browser" && obj.auth == 1){
                 userLoginRequest(obj);
             }else if(obj.request=="bitfinex_ws"){
+                clearTimeout(bitfinex_timeout);
+                bitfinex_timeout = setTimeout(bfx,60000);
                 for(var exchange in srvr.exchanges){
                     if(exchange == "bitfinex"){
                         srvr.exchanges[exchange][obj.pair] = obj.pairs;
@@ -86,7 +90,7 @@ const wss = new ws_server({clientTracking: true, port: env.WSS_PORT});
     });
 
     bfx = () => {
-
+        bitfinex_timeout = setTimeout(bfx,60000);
         const exec = require('child_process').exec;
         const bitfinex_ws = exec('node '+env.APP_DIR+'bitfinex_websocket.js');
         bitfinex_ws.stdout.on('data', function(data) {
@@ -102,6 +106,7 @@ const wss = new ws_server({clientTracking: true, port: env.WSS_PORT});
     }
 
     bfx();
+
 
 
 // UTILS ------------------------------
