@@ -200,7 +200,7 @@ var bitfinex_timeout;
                 for(i in srvr.users){
                     ids.push(srvr.users[i].user_id);
                 }
-                where = srvr.users.join(" OR user_id =");
+                where = ids.join(" OR user_id =");
             }else{
                 where = srvr.users[0].user_id;
             }

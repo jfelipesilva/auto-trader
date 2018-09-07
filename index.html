@@ -76,7 +76,7 @@
         </div>
         <div class="col-md-6">
             <h2>Running Strategies</h2><br>
-            <table class="table table-striped">
+            <table class="table strategies table-striped">
                 <thead>
                     <tr>
                         <td width="15%">Pair</td>
@@ -84,6 +84,20 @@
                         <td width="30%">Strategy (buy/stop/target)</td>
                         <td width="30%">loss / gain (%)</td>
                         <td width="10%">Status</td>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+            <br><br>
+            <h2>Executed Trades</h2><br>
+            <table class="table orders table-striped">
+                <thead>
+                    <tr>
+                        <td width="15%">Date</td>
+                        <td width="15%">Pair</td>
+                        <td width="15%">Price</td>
+                        <td width="15%">Type</td>
                     </tr>
                 </thead>
                 <tbody>
@@ -106,8 +120,8 @@
             }
         },2000);
 
-        socket = new WebSocket("ws://127.0.0.1:8002/");
-        //socket = new WebSocket("ws://18.216.87.39:8002/");
+        //socket = new WebSocket("ws://127.0.0.1:8002/");
+        socket = new WebSocket("ws://18.216.87.39:8002/");
         socket.onmessage = function (msg) {
             log('MENSAGEM DO SERVIDOR');
             data = JSON.parse(msg.data);
@@ -120,7 +134,7 @@
                 $("table tbody").empty();
                 let status = "";
                 data.strategies.forEach(function(strat, i){
-                    $("<tr class="+strat.pair+"><td>"+strat.pair+"</td><td class='price'>"+strat.price.toLocaleString('pt-BR')+"</td><td>"+strat.buy.toLocaleString('pt-BR')+" / <span style='color:red;'>"+strat.stop.toLocaleString('pt-BR')+"</span> / <span style='color:green;'>"+strat.target.toLocaleString('pt-BR')+"</span></td><td><span style='color:red;'>"+calcPercentage(strat.stop,strat.buy).toFixed(2)+"%</span> / <span style='color:green;'>"+calcPercentage(strat.target,strat.buy).toFixed(2)+"%</span></td><td class='status'>"+statusColors(strat.status)+"</td></tr>").appendTo("table tbody");
+                    $("<tr class="+strat.pair+"><td>"+strat.pair+"</td><td class='price'>"+strat.price.toLocaleString('pt-BR')+"</td><td>"+strat.buy.toLocaleString('pt-BR')+" / <span style='color:red;'>"+strat.stop.toLocaleString('pt-BR')+"</span> / <span style='color:green;'>"+strat.target.toLocaleString('pt-BR')+"</span></td><td><span style='color:red;'>"+calcPercentage(strat.stop,strat.buy).toFixed(2)+"%</span> / <span style='color:green;'>"+calcPercentage(strat.target,strat.buy).toFixed(2)+"%</span></td><td class='status'>"+statusColors(strat.status)+"</td></tr>").appendTo("table.strategies tbody");
                 });
             }else if(data.update == 1){
                 log(data.pair+":"+data.price);
@@ -128,9 +142,10 @@
                 $("."+data.pair+" .status").html(statusColors(data.status));
             }else if(data.update == 2){
                 log("trades");
-                for(i in data.trades){
-                    log(data.trades[i].created_at+" - type:"+data.trades[i].type+" at price: "+data.trades[i].priceFilled);
-                }
+                data.trades.forEach(function(trade, i){
+                    log(trade.created_at+" - type:"+trade.type+" at price: "+trade.priceFilled);
+                    $("<tr><td>"+trade.created_at+"</td><td> -- </td><td>"+trade.priceFilled+"</td><td>"+trade.type+"</td></tr>").appendTo("table.orders tbody");
+                });
             }
         };
         socket.onopen = function () {
