@@ -204,7 +204,7 @@ var bitfinex_timeout;
             }else{
                 where = srvr.users[0].user_id;
             }
-            db.query("SELECT B.email, A.user_id, A.priceFilled, pair, A.type, A.created_at FROM orders A INNER JOIN user B ON A.user_id = B.id WHERE A.user_id ="+where+" ORDER BY A.user_id, created_at", function(rows){
+            db.query("SELECT A.id, B.email, A.user_id, A.priceFilled, pair, A.type, A.created_at FROM orders A INNER JOIN user B ON A.user_id = B.id WHERE A.user_id ="+where+" ORDER BY A.user_id, A.id", function(rows){
                 if(rows.length > 0){
                     let u = -1;
                     let user_id = 0;
@@ -216,7 +216,7 @@ var bitfinex_timeout;
                     rows.forEach(function(res, i){
                         if(user_id != res.user_id){
                             if(u!=-1){
-                                srvr.users[u].send('{"update":2, "trades":'+JSON.stringify(orders)+'}');
+                                srvr.users[u].send('{"update":2, "trades":'+JSON.stringify(orders.reverse())+'}');
                             }
                             u = getUserByEmail(res.email);
                             orders = [];
@@ -246,7 +246,7 @@ var bitfinex_timeout;
                         res.percentage = total_percent.toFixed(2);
                         orders.push(res);
                     });
-                    srvr.users[u].send('{"update":2, "trades":'+JSON.stringify(orders)+'}');
+                    srvr.users[u].send('{"update":2, "trades":'+JSON.stringify(orders.reverse())+'}');
                 }
             });
         }

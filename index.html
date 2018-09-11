@@ -121,8 +121,8 @@
             }
         },2000);
 
-        //socket = new WebSocket("ws://127.0.0.1:8002/");
-        socket = new WebSocket("ws://18.216.87.39:8002/");
+        socket = new WebSocket("ws://127.0.0.1:8002/");
+        //socket = new WebSocket("ws://18.216.87.39:8002/");
         socket.onmessage = function (msg) {
             log('MENSAGEM DO SERVIDOR');
             data = JSON.parse(msg.data);
