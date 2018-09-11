@@ -144,8 +144,7 @@
                 log("trades");
                 $("table.orders tbody").empty();
                 data.trades.forEach(function(trade, i){
-                    log(trade.created_at+" - type:"+trade.type+" at price: "+trade.priceFilled);
-                    $("<tr><td>"+trade.created_at+"</td><td> -- </td><td>"+trade.priceFilled+"</td><td>"+trade.type+"</td></tr>").appendTo("table.orders tbody");
+                    $("<tr><td>"+trade.created_at+"</td><td>"+trade.pair+"</td><td>"+trade.priceFilled+"</td><td>"+trade.type+"</td></tr>").appendTo("table.orders tbody");
                 });
             }
         };

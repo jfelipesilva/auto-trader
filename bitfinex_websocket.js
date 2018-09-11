@@ -154,19 +154,19 @@ verifyStrategiesByPrice = (pair) => {
                 //https://gist.github.com/joshuarossi/456a16bd17577a9e7681b6d43880b920
                 strat.status = "open";
                 strategies.setStatus(strat.id, strat.status);
-                users.setOpenTrade(strat.user_id,strat.id,obj.price);
+                users.setOpenTrade(strat.user_id,strat.id,pair,obj.price);
                 utils.log("Usuário #"+strat.user_id+" Comprou "+pair+" por "+obj.price, "info");
             }
         }else if(userTradingStrategy == strat.id){
             if(obj.price < strat.stop){
                 utils.log("Usuário #"+strat.user_id+" foi stopado "+pair+" por "+obj.price, "danger");
-                users.setCloseTrade(strat.user_id, strat.id, obj.price, 'stop');
+                users.setCloseTrade(strat.user_id, strat.id, pair, obj.price, 'stop');
                 strat.status = "stoped";
                 strategies.buyFlagControl(0, strat.id, strat.status);
                 strat.buyFlag = 0;
             }else if(obj.price > strat.target){
                 utils.log("Usuário #"+strat.user_id+" atingiu seu target "+pair+" por "+obj.price, "success");
-                users.setCloseTrade(strat.user_id, strat.id, obj.price, 'target');
+                users.setCloseTrade(strat.user_id, strat.id, pair, obj.price, 'target');
                 strat.status = "obsolete";
                 strategies.buyFlagControl(1, strat.id, strat.status);
             }
