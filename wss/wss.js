@@ -216,7 +216,7 @@ var bitfinex_timeout;
                     rows.forEach(function(res, i){
                         if(user_id != res.user_id){
                             if(u!=-1){
-                                srvr.users[u].send('{"update":2, "trades":'+JSON.stringify(orders)+'}');
+                                srvr.users[u].send('{"update":2, "trades":'+JSON.stringify(orders.reverse())+'}');
                             }
                             u = getUserByEmail(res.email);
                             orders = [];
@@ -246,7 +246,7 @@ var bitfinex_timeout;
                         res.percentage = total_percent.toFixed(2);
                         orders.push(res);
                     });
-                    srvr.users[u].send('{"update":2, "trades":'+JSON.stringify(orders)+'}');
+                    srvr.users[u].send('{"update":2, "trades":'+JSON.stringify(orders.reverse())+'}');
                 }
             });
         }
