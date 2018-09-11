@@ -204,11 +204,15 @@ var bitfinex_timeout;
             }else{
                 where = srvr.users[0].user_id;
             }
-            db.query("SELECT B.email, A.user_id, A.priceFilled, pair, A.type, A.created_at FROM orders A INNER JOIN user B ON A.user_id = B.id WHERE A.user_id ="+where+" ORDER BY A.user_id, created_at DESC", function(rows){
+            db.query("SELECT B.email, A.user_id, A.priceFilled, pair, A.type, A.created_at FROM orders A INNER JOIN user B ON A.user_id = B.id WHERE A.user_id ="+where+" ORDER BY A.user_id, created_at", function(rows){
                 if(rows.length > 0){
                     let u = -1;
                     let user_id = 0;
                     let orders = [];
+                    let calc = 0;
+                    let pair = "";
+                    let total = 100;
+                    let total_percent = 0;
                     rows.forEach(function(res, i){
                         if(user_id != res.user_id){
                             if(u!=-1){
@@ -217,7 +221,29 @@ var bitfinex_timeout;
                             u = getUserByEmail(res.email);
                             orders = [];
                             user_id = res.user_id;
+                            calc = 0;
+                            pair="";
+                            total = 100;
+                            total_percent = 0;
                         }
+                        if(res.type == "buy"){
+                            calc = res.priceFilled;
+                            pair = res.pair;
+                        }else{
+                            if(res.type == "stop" && res.pair == pair){
+                                calc = calc / res.priceFilled;
+                                total = total / calc;
+                            }else if(res.type == "target" && res.pair == pair){
+                                calc = res.priceFilled / calc;
+                                total = total * calc;
+                            }
+                            if(total>100){
+                                total_percent = ((total/100)-1)*100;
+                            }else{
+                                total_percent = (((100/total)-1)*100)*(-1);
+                            }
+                        }
+                        res.percentage = total_percent.toFixed(2);
                         orders.push(res);
                     });
                     srvr.users[u].send('{"update":2, "trades":'+JSON.stringify(orders)+'}');

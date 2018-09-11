@@ -97,6 +97,7 @@
                         <td width="15%">Date</td>
                         <td width="15%">Pair</td>
                         <td width="15%">Price</td>
+                        <td width="15%">Percentage</td>
                         <td width="15%">Type</td>
                     </tr>
                 </thead>
@@ -120,8 +121,8 @@
             }
         },2000);
 
-        //socket = new WebSocket("ws://127.0.0.1:8002/");
-        socket = new WebSocket("ws://18.216.87.39:8002/");
+        socket = new WebSocket("ws://127.0.0.1:8002/");
+        //socket = new WebSocket("ws://18.216.87.39:8002/");
         socket.onmessage = function (msg) {
             log('MENSAGEM DO SERVIDOR');
             data = JSON.parse(msg.data);
@@ -141,10 +142,9 @@
                 $("."+data.pair+" .price").html(data.price.toLocaleString('pt-BR'));
                 $("."+data.pair+" .status").html(statusColors(data.status));
             }else if(data.update == 2){
-                log("trades");
                 $("table.orders tbody").empty();
                 data.trades.forEach(function(trade, i){
-                    $("<tr><td>"+trade.created_at+"</td><td>"+trade.pair+"</td><td>"+trade.priceFilled+"</td><td>"+trade.type+"</td></tr>").appendTo("table.orders tbody");
+                    $("<tr><td>"+trade.created_at+"</td><td>"+trade.pair+"</td><td>"+trade.priceFilled+"</td><td>"+trade.percentage+"%</td><td>"+trade.type+"</td></tr>").appendTo("table.orders tbody");
                 });
             }
         };
